@@ -1,0 +1,25 @@
+{
+    "cells": [
+        {
+            "language": "typescript",
+            "source": [
+                "// Set the appropriate config values for your environment. The profile should have access to valid AWS credentials.\n\nconst region = '' // e.g. 'eu-central-1\nconst bucket = '' // your bucket name\nconst profile = '' // e.g. 'my-dev-profile'"
+            ],
+            "outputs": []
+        },
+        {
+            "language": "typescript",
+            "source": [
+                "import  {fromIni} from \"@aws-sdk/credential-providers\"\nimport { S3Client, ListObjectsCommand, ListObjectsCommandInput } from '@aws-sdk/client-s3';\n\nconst client = new S3Client({ region, credentials: fromIni({profile}) });\n\nconst params:ListObjectsCommandInput = {\n  Bucket: bucket,\n};\n\nconst bucketObjects: any[] = [];\n\nconst run = async () => {\n  try {\n    const data = await client.send(new ListObjectsCommand(params));\n    for (const object of data.Contents || []) {      \n      bucketObjects.push(object || '');\n    }    \n  } catch (err) {\n    console.error(err);\n  }\n}\n\nrun();"
+            ],
+            "outputs": []
+        },
+        {
+            "language": "javascript",
+            "source": [
+                "import { display } from 'node-kernel';\n\nconst links = [];\nfor (const object of bucketObjects) {\n  const link = `- [${object.Key}](https://s3.console.aws.amazon.com/s3/object/${bucket}?region=${region}&prefix=${object.Key})`;\n  links.push(link);  \n}\n\ndisplay.markdown(links.join(\"\\n\"));"
+            ],
+            "outputs": []
+        }
+    ]
+}
